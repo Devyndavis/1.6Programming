@@ -5,76 +5,68 @@
 
 using namespace std;
 
-// Constants
-const int NUM_RUNNERS = 5; // Number of runners
-const int NUM_DAYS = 7;     // Number of days in a week
-
 // Function prototypes
-void readData(string runners[], int miles[][NUM_DAYS], const string& filename);
-void calculateTotalsAndAverages(const int miles[][NUM_DAYS], int totals[], double averages[]);
-void outputResults(const string runners[], const int miles[][NUM_DAYS], const int totals[], const double averages[]);
+void readData(string names[], int miles[][7], int size);
+void calculateTotalsAndAverages(const int miles[][7], int totalMiles[], double averageMiles[], int size);
+void displayResults(const string names[], const int miles[][7], const int totalMiles[], const double averageMiles[], int size);
 
 int main() {
-    string runners[NUM_RUNNERS];                  // Array to store runners' names
-    int miles[NUM_RUNNERS][NUM_DAYS] = {0};       // 2D array to store miles run
-    int totals[NUM_RUNNERS] = {0};                 // Array to store total miles run by each runner
-    double averages[NUM_RUNNERS] = {0.0};          // Array to store average miles run by each runner
+    const int NUM_RUNNERS = 5; // Number of runners
+    string names[NUM_RUNNERS]; // Array to store runner names
+    int miles[NUM_RUNNERS][7]; // 2D array to store miles run each day
+    int totalMiles[NUM_RUNNERS] = {0}; // Array to store total miles for each runner
+    double averageMiles[NUM_RUNNERS] = {0.0}; // Array to store average miles for each runner
 
-    // Read data from file
-    readData(runners, miles, "runners.txt");
-
-    // Calculate total and average miles run
-    calculateTotalsAndAverages(miles, totals, averages);
-
-    // Output the results
-    outputResults(runners, miles, totals, averages);
+    readData(names, miles, NUM_RUNNERS);
+    calculateTotalsAndAverages(miles, totalMiles, averageMiles, NUM_RUNNERS);
+    displayResults(names, miles, totalMiles, averageMiles, NUM_RUNNERS);
 
     return 0;
 }
 
-// Function to read runners' names and miles run each day from a file
-void readData(string runners[], int miles[][NUM_DAYS], const string& filename) {
-    ifstream inFile(filename);
-    if (!inFile) {
-        cerr << "Error opening file!" << endl;
+// Function to read and store the runners' names and miles run each day
+void readData(string names[], int miles[][7], int size) {
+    ifstream inputFile("runners.txt"); // Open the input file
+
+    if (!inputFile) { // Check if the file opened successfully
+        cerr << "Error opening file." << endl;
         exit(1);
     }
 
-    for (int i = 0; i < NUM_RUNNERS; ++i) {
-        inFile >> runners[i]; // Read runner's name
-        for (int j = 0; j < NUM_DAYS; ++j) {
-            inFile >> miles[i][j]; // Read miles for each day
+    for (int i = 0; i < size; i++) {
+        inputFile >> names[i]; // Read the runner's name
+        for (int j = 0; j < 7; j++) {
+            inputFile >> miles[i][j]; // Read the miles for each day
         }
     }
-    inFile.close();
+    inputFile.close(); // Close the input file
 }
 
-// Function to calculate total and average miles run by each runner
-void calculateTotalsAndAverages(const int miles[][NUM_DAYS], int totals[], double averages[]) {
-    for (int i = 0; i < NUM_RUNNERS; ++i) {
-        int total = 0;
-        for (int j = 0; j < NUM_DAYS; ++j) {
-            total += miles[i][j]; // Calculate total miles for each runner
+// Function to calculate total miles and average miles for each runner
+void calculateTotalsAndAverages(const int miles[][7], int totalMiles[], double averageMiles[], int size) {
+    for (int i = 0; i < size; i++) {
+        int sum = 0;
+        for (int j = 0; j < 7; j++) {
+            sum += miles[i][j]; // Sum up the miles for each runner
         }
-        totals[i] = total;                             // Store total miles
-        averages[i] = static_cast<double>(total) / NUM_DAYS; // Calculate average miles
+        totalMiles[i] = sum; // Store total miles
+        averageMiles[i] = static_cast<double>(sum) / 7; // Calculate average miles
     }
 }
 
-// Function to output the results in a formatted table
-void outputResults(const string runners[], const int miles[][NUM_DAYS], const int totals[], const double averages[]) {
-    cout << left << setw(15) << "Runner Name"; // Table header
-    for (int day = 1; day <= NUM_DAYS; ++day) {
-        cout << setw(10) << "Day " + to_string(day); // Days of the week
-    }
-    cout << setw(15) << "Total Miles" << setw(15) << "Avg Miles" << endl;
+// Function to display the results in a formatted table
+void displayResults(const string names[], const int miles[][7], const int totalMiles[], const double averageMiles[], int size) {
+    cout << left << setw(15) << "Runner's Name"; // Column header for names
+    cout << "Day 1  Day 2  Day 3  Day 4  Day 5  Day 6  Day 7  Total  Average" << endl;
+    cout << string(75, '-') << endl; // Separator line
 
-    // Output results for each runner
-    for (int i = 0; i < NUM_RUNNERS; ++i) {
-        cout << left << setw(15) << runners[i]; // Runner's name
-        for (int j = 0; j < NUM_DAYS; ++j) {
-            cout << setw(10) << miles[i][j]; // Miles run each day
+    for (int i = 0; i < size; i++) {
+        cout << left << setw(15) << names[i]; // Print runner's name
+        for (int j = 0; j < 7; j++) {
+            cout << setw(6) << miles[i][j]; // Print miles run each day
         }
-        cout << setw(15) << totals[i] << setw(15) << fixed << setprecision(2) << averages[i] << endl; // Total and average
+        cout << setw(6) << totalMiles[i]; // Print total miles
+        cout << fixed << setprecision(2) << averageMiles[i]; // Print average miles
+        cout << endl;
     }
 }
